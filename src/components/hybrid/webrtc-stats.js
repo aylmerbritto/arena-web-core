@@ -3,7 +3,7 @@ export class WebRTCStatsLogger {
         this.peerConnection = peerConnection;
         this.updateInterval = updateInterval;
 
-        this.lastResult = null;
+        this.lastReport = null;
 
         this.startLogging();
     }
@@ -12,29 +12,49 @@ export class WebRTCStatsLogger {
         window.setInterval(this.getStats.bind(this), this.updateInterval);
     }
 
-    getStats() {
-        this.peerConnection.getStats()
-            .then((res) => {
-                res.forEach(this.handleReport.bind(this));
-                this.lastResult = res;
-            });
+    async getStats() {
+        const report = await this.peerConnection.getStats();
+        this.handleReport(report);
     }
 
     handleReport(report) {
-        if (report.type !== 'inbound-rtp') {
-            return;
-        }
+        report.forEach((stat) => {
+            if (stat.type !== 'inbound-rtp') {
+                return;
+            }
 
-        // https://developer.mozilla.org/en-US/docs/Web/API/RTCInboundRtpStreamStats
-        const now = report.timestamp;
-        const bytes = report.bytesReceived;
+            if (stat.codecId != undefined) {
+                const codec = report.get(stat.codecId);
+                console.log(`Codec: ${codec.mimeType}`);
 
-        if (this.lastResult && this.lastResult.has(report.id)) {
-            // calculate bitrate
-            const bitrate = 8 * (bytes - this.lastResult.get(report.id).bytesReceived) /
-                (now - this.lastResult.get(report.id).timestamp);
+                if (codec.payloadType) {
+                    console.log(`payloadType=${codec.payloadType}`);
+                }
 
-            console.log(`bitrate: ${bitrate}`);
-        }
+                if (codec.clockRate) {
+                    console.log(`clockRate=${codec.clockRate}`);
+                }
+
+                if (codec.channels) {
+                    console.log(`channels=${codec.channels}`);
+                }
+            }
+
+            if (stat.kind == "video") {
+                console.log(`Decoder: ${stat.decoderImplementation}`);
+                console.log(`Resolution: ${stat.frameWidth}x${stat.frameHeight}`);
+                console.log(`Framerate: ${stat.framesPerSecond}`);
+            }
+
+            if (this.lastReport && this.lastReport.has(stat.id)) {
+                // calculate bitrate
+                const lastStats = this.lastReport.get(stat.id);
+                const duration = (stat.timestamp - lastStats.timestamp) / 1000;
+                const bitrate = (8 * (stat.bytesReceived - lastStats.bytesReceived) / duration) / 1000;
+                console.log(`Bitrate: ${bitrate.toFixed(2)} kbit/sec`);
+            }
+        });
+
+        this.lastReport = report;
     }
 }
