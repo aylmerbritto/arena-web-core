@@ -31,7 +31,7 @@ AFRAME.registerComponent('render-client', {
 
         this.signaler = new MQTTSignaling(this.id);
         this.signaler.onOffer = this.gotOffer.bind(this);
-        this.signaler.Health = this.Health.bind(this);
+        this.signaler.onHealthCheck = this.gotHealthCheck.bind(this);
         this.signaler.onAnswer = this.gotAnswer.bind(this);
         this.signaler.onIceCandidate = this.gotIceCandidate.bind(this);
 
@@ -93,7 +93,9 @@ AFRAME.registerComponent('render-client', {
         this.peerConnection.onicecandidate = this.onIceCandidate.bind(this);
         this.peerConnection.ontrack = this.onRemoteTrack.bind(this);
         this.peerConnection.oniceconnectionstatechange = () => {
-            console.log('[render-client] iceConnectionState changed:,', this.peerConnection.iceConnectionState);
+            if (this.peerConnection) {
+                console.log('[render-client] iceConnectionState changed:,', this.peerConnection.iceConnectionState);
+            }
         };
 
         this.dataChannel = this.peerConnection.createDataChannel('client-input');
@@ -212,23 +214,23 @@ AFRAME.registerComponent('render-client', {
             }));
         }
     },
-    Health() {
+
+    gotHealthCheck() {
         this.timer++;
     },
+
     isServeralive() {
         console.log(this.connected);
         if (this.timer == this.oldtime && this.connected) {
-            console.log('server is dead');
             const env = document.getElementById('env');
-                env.setAttribute('visible', true);
-                // document.getElementById('sceneRoot');
-                // sceneRoot.removeChild(env);
+            env.setAttribute('visible', true);
+            const groundPlane = document.getElementById('groundPlane');
+            groundPlane.setAttribute('visible', true);
 
-                const groundPlane = document.getElementById('groundPlane');
-                groundPlane.setAttribute('visible', true);
             document.querySelector('a-scene').systems['compositor'].unbind();
-           // this.dataChannel.close();
-            //this.peerConnection.close();
+
+            // this.dataChannel.close();
+            // this.peerConnection.close();
             this.dataChannel = null;
             this.peerConnection = null;
             this.connected = false;
