@@ -38,11 +38,11 @@ AFRAME.registerComponent('render-client', {
         this.signaler.onHealthCheck = this.gotHealthCheck.bind(this);
         this.signaler.onAnswer = this.gotAnswer.bind(this);
         this.signaler.onIceCandidate = this.gotIceCandidate.bind(this);
-
+        //this.recivedAckknowledge = False;
         window.onbeforeunload = () => {
             this.signaler.closeConnection();
         };
-
+        // this.connecttoDispatcher()
         this.connectToCloud();
 
         console.log('[render-client]', this.id);
@@ -61,6 +61,18 @@ AFRAME.registerComponent('render-client', {
             await this.sleep(data.sendConnectRetryInterval);
         }
     },
+    /*
+    async connecttoDispatcher() {
+        const data = this.data;
+        await this.signaler.recivedAcknoeldge();
+
+        while (!this.RecievedAckknowldge) {
+            console.log('[render-client] connecting...');
+            this.signaler.DispatcherConnect();
+            await this.sleep(data.sendConnectRetryInterval);
+        }
+    },
+    */
 
     onRemoteTrack(event) {
         console.log('got remote stream');
@@ -201,6 +213,12 @@ AFRAME.registerComponent('render-client', {
     gotHealthCheck() {
         this.healthCounter = 0;
     },
+    /*
+    gotAckknowldge()
+    {
+        this.recivedAckknowledge = True;
+    }
+    */
 
     async listenForHealthCheck() {
         const data = this.data;
@@ -224,6 +242,7 @@ AFRAME.registerComponent('render-client', {
         this.connected = false;
         this.signaler.connectionId = null;
         this.healthCounter = 0;
+        //this.connecttoDispatcher
         this.connectToCloud();
     },
 
