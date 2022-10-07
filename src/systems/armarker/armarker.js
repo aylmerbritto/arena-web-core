@@ -43,6 +43,7 @@ AFRAME.registerSystem('armarker', {
     // ar markers retrieved from ATLAS
     ATLASMarkers: {},
     // indicate if we started the cv pipeline
+    cvPipelineInitializing: false,
     cvPipelineInitialized: false,
     // initialized once the xr session starts
     webXRSession: null,
@@ -137,12 +138,14 @@ AFRAME.registerSystem('armarker', {
     *
     */
     async initCVPipeline() {
-        if (this.cvPipelineInitialized) return;
+        if (this.cvPipelineInitializing || this.cvPipelineInitialized) return;
+        this.cvPipelineInitializing = true;
         // try to setup a WebXRViewer/WebARViewer (custom iOS browser) camera capture pipeline
         if (this.isWebARViewer) {
             try {
                 this.cameraCapture = new WebARViewerCameraCapture(this.data.debugCameraCapture);
             } catch (err) {
+                this.cvPipelineInitializing = false;
                 console.warn(`Could not create WebXRViewer/WebARViewer camera capture. ${err}`);
                 return; // we are done here
             }
@@ -168,6 +171,7 @@ AFRAME.registerSystem('armarker', {
             try {
                 this.cameraCapture = new WebXRCameraCapture(this.webXRSession, this.gl, this.data.debugCameraCapture);
             } catch (err) {
+                this.cvPipelineInitializing = false;
                 console.error(`No valid CV camera capture found. ${err}`);
                 return; // no valid cv camera capture; we are done here
             }
@@ -176,6 +180,7 @@ AFRAME.registerSystem('armarker', {
                 this.cameraCapture = new WebARCameraCapture();
                 await this.cameraCapture.initCamera();
             } catch (err) {
+                this.cvPipelineInitializing = false;
                 console.error(`No valid CV camera capture found. ${err}`);
                 return; // no valid cv camera capture; we are done here
             }
@@ -288,6 +293,10 @@ AFRAME.registerSystem('armarker', {
                 window.this.lastATLASUpdate = new Date();
                 return response.json();
             })
+            .catch((e) => {
+                console.log('Error retrieving ATLAS markers');
+                return false;
+            })
             .then((data) => {
                 data.forEach((tag) => {
                     const tagid = tag.name.substring(9);
@@ -318,7 +327,7 @@ AFRAME.registerSystem('armarker', {
     */
     detectARHeadset() {
         if (window.mlWorld) return 'ml';
-        if (navigator.xr && navigator.userAgent.includes('Edge')) return 'hl';
+        if (navigator.xr && navigator.userAgent.includes('Edg')) return 'hl';
         return 'unknown';
     },
     /**

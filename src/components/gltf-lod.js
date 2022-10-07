@@ -1,5 +1,7 @@
 /* global AFRAME */
 
+import {ARENAUtils} from '../utils.js';
+
 /**
  * @fileoverview Component loads/unloads gltfs by simple user distance-based LOD
  * Inspired by aframe-lod <https://github.com/mflux/aframe-lod>
@@ -143,7 +145,7 @@ AFRAME.registerComponent('gltf-model-lod', {
             // Switch from default to detailed when inside (dist - threshold)
             if (!this.showDetailed && distDiff <= -LOD_THRESHOLD ) {
                 window.clearTimeout(this.cacheFreeTimer); // Stop cache freeing timer, if active
-                this.el.setAttribute('gltf-model', this.data.detailedUrl);
+                this.el.setAttribute('gltf-model', ARENAUtils.crossOriginDropboxSrc(this.data.detailedUrl));
                 this.showDetailed = true;
             // Switch from detailed to default when outside (dist + threshold)
             } else if (this.showDetailed && distDiff >= LOD_THRESHOLD) {
@@ -152,7 +154,7 @@ AFRAME.registerComponent('gltf-model-lod', {
                 if (!this.data.retainCache) {
                     window.clearTimeout(this.cacheFreeTimer);
                     this.cacheFreeTimer = window.setTimeout(() => {
-                        THREE.Cache.remove(this.data.detailedUrl);
+                        THREE.Cache.remove(ARENAUtils.crossOriginDropboxSrc(this.data.detailedUrl));
                         this.cacheFreeTimer = null;
                     }, CACHE_FREE_DELAY);
                 }
