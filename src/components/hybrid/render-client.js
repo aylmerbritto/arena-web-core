@@ -275,8 +275,16 @@ AFRAME.registerComponent('render-client', {
         const el = this.el;
 
         if (this.connected && this.dataChannel.readyState == 'open') {
-            data.rotation.setFromRotationMatrix(el.object3D.matrixWorld);
+            const prevPos = new THREE.Vector3();
+            const prevRot = new THREE.Vector3();
+            data.position.copy(prevPos);
+            data.rotation.copy(prevPos);
+
             data.position.setFromMatrixPosition(el.object3D.matrixWorld);
+            data.rotation.setFromRotationMatrix(el.object3D.matrixWorld);
+
+            if (prevPos.distanceTo(data.position) <= Number.EPSILON &&
+                prevRot.distanceTo(data.rotation) <= Number.EPSILON) return;
 
             this.dataChannel.send(JSON.stringify({
                 x: data.position.x.toFixed(3),
