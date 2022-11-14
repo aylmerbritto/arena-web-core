@@ -2,11 +2,19 @@ import {MQTTSignaling} from './signaling/mqtt-signaling';
 import {WebRTCStatsLogger} from './webrtc-stats';
 import {ARENAUtils} from '../../utils';
 
-const peerConnectionConfig = {
+const pcConfig = {
     'sdpSemantics': 'unified-plan',
+    'bundlePolicy': 'balanced',
+    'offerExtmapAllowMixed': false,
     'iceServers': [
         {'urls': 'stun:stun.l.google.com:19302'},
     ],
+};
+
+const sdpConstraints = {
+    offerToReceiveAudio: 0,
+    offerToReceiveVideo: 1,
+    voiceActivityDetection: false,
 };
 
 const invalidCodecs = ['video/red', 'video/ulpfec', 'video/rtx'];
@@ -14,6 +22,7 @@ const preferredCodec = 'video/H264';
 const preferredSdpFmtpLine = 'level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f';
 
 const dataChannelOptions = {
+    ordered: true,
     // ordered: false, // do not guarantee order
     // maxPacketLifeTime: 17, // in milliseconds
     // maxRetransmits: null,
@@ -51,8 +60,6 @@ AFRAME.registerComponent('render-client', {
         };
         // this.connecttoDispatcher()
         this.connectToCloud();
-
-        console.log('[render-client]', this.id);
 
         window.addEventListener('hybrid-onremoterender', this.onRemoteRender.bind(this));
         console.log('[render-client]', this.id);
@@ -111,19 +118,37 @@ AFRAME.registerComponent('render-client', {
         }
     },
 
-    gotOffer(offer) {
-        console.log('got offer.');
+    setupTransceivers() {
+        if (supportsSetCodecPreferences) {
+            const transceiver = this.pc.getTransceivers()[0];
+            // const transceiver = this.pc.addTransceiver('video', {direction: 'recvonly'});
+            console.log(this.pc.getTransceivers());
+            const {codecs} = RTCRtpSender.getCapabilities('video');
+            const validCodecs = codecs.filter((codec) => !invalidCodecs.includes(codec.mimeType));
+            const selectedCodecIndex = validCodecs.findIndex((c) => c.mimeType === preferredCodec &&
+                                                                    c.sdpFmtpLine === preferredSdpFmtpLine);
+            const selectedCodec = validCodecs[selectedCodecIndex];
+            validCodecs.splice(selectedCodecIndex, 1);
+            validCodecs.unshift(selectedCodec);
+            console.log('codecs', validCodecs);
+            transceiver.setCodecPreferences(validCodecs);
+            console.log('Preferred video codec', selectedCodec);
+        }
+    },
 
-        this.peerConnection = new RTCPeerConnection(peerConnectionConfig);
-        this.peerConnection.onicecandidate = this.onIceCandidate.bind(this);
-        this.peerConnection.ontrack = this.onRemoteTrack.bind(this);
-        this.peerConnection.oniceconnectionstatechange = () => {
-            if (this.peerConnection) {
-                console.log('[render-client] iceConnectionState changed:,', this.peerConnection.iceConnectionState);
+    gotOffer(offer) {
+        // console.log('got offer.');
+
+        this.pc = new RTCPeerConnection(pcConfig);
+        this.pc.onicecandidate = this.onIceCandidate.bind(this);
+        this.pc.ontrack = this.onRemoteTrack.bind(this);
+        this.pc.oniceconnectionstatechange = () => {
+            if (this.pc) {
+                console.log('[render-client] iceConnectionState changed:,', this.pc.iceConnectionState);
             }
         };
 
-        this.dataChannel = this.peerConnection.createDataChannel('client-input', dataChannelOptions);
+        this.dataChannel = this.pc.createDataChannel('client-input', dataChannelOptions);
 
         this.dataChannel.onopen = () => {
             console.log('Data Channel is Open');
@@ -133,9 +158,9 @@ AFRAME.registerComponent('render-client', {
             console.log('Data Channel is Closed');
         };
 
-        this.stats = new WebRTCStatsLogger(this.peerConnection, this.signaler);
+        this.stats = new WebRTCStatsLogger(this.pc, this.signaler);
 
-        this.peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
+        this.pc.setRemoteDescription(new RTCSessionDescription(offer))
             .then(() => {
                 this.createAnswer();
             })
@@ -144,29 +169,15 @@ AFRAME.registerComponent('render-client', {
             });
     },
 
-    startNegotiation() {
-        console.log('creating offer.');
+    createOffer() {
+        // console.log('creating offer.');
 
-        if (supportsSetCodecPreferences) {
-            const transceiver = this.peerConnection.getTransceivers()[0];
-            // const transceiver = this.peerConnection.addTransceiver('video', {direction: 'recvonly'});
-            const {codecs} = RTCRtpSender.getCapabilities('video');
-            const validCodecs = codecs.filter((codec) => !invalidCodecs.includes(codec.mimeType));
-            const selectedCodecIndex = validCodecs.findIndex((c) => c.mimeType === preferredCodec && c.sdpFmtpLine === preferredSdpFmtpLine);
-            const selectedCodec = validCodecs[selectedCodecIndex];
-            validCodecs.splice(selectedCodecIndex, 1);
-            validCodecs.unshift(selectedCodec);
-            console.log('codecs', validCodecs);
-            transceiver.setCodecPreferences(validCodecs);
-            console.log('Preferred video codec', selectedCodec);
-        }
-
-        this.peerConnection.createOffer()
+        this.pc.createOffer(sdpConstraints)
             .then((description) => {
-                this.peerConnection.setLocalDescription(description)
+                this.pc.setLocalDescription(description)
                     .then(() => {
-                        console.log('sending offer.');
-                        this.signaler.sendOffer(this.peerConnection.localDescription);
+                        // console.log('sending offer.');
+                        this.signaler.sendOffer(this.pc.localDescription);
                     })
                     .catch((err) => {
                         console.error(err);
@@ -178,9 +189,9 @@ AFRAME.registerComponent('render-client', {
     },
 
     gotAnswer(answer) {
-        console.log('got answer.');
+        // console.log('got answer.');
 
-        this.peerConnection.setRemoteDescription(new RTCSessionDescription(answer))
+        this.pc.setRemoteDescription(new RTCSessionDescription(answer))
             .then(() => {
                 this.connected = true;
 
@@ -203,20 +214,29 @@ AFRAME.registerComponent('render-client', {
     gotIceCandidate(candidate) {
         // console.log('got ice.');
         if (this.connected) {
-            this.peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+            this.pc.addIceCandidate(new RTCIceCandidate(candidate));
         }
     },
 
     createAnswer() {
-        console.log('creating answer.');
+        // console.log('creating answer.');
 
-        this.peerConnection.createAnswer()
+        this.setupTransceivers();
+
+        this.pc.createAnswer()
             .then((description) => {
-                this.peerConnection.setLocalDescription(description).then(() => {
-                    console.log('sending answer');
-                    this.signaler.sendAnswer(this.peerConnection.localDescription);
-                    this.startNegotiation();
-                });
+                this.pc.setLocalDescription(description)
+                    .then(() => {
+                        console.log('sending answer');
+                        this.signaler.sendAnswer(this.pc.localDescription);
+                        this.createOffer();
+                    });
+            })
+            .then(()=> {
+                const receivers = this.pc.getReceivers();
+                for (const receiver of receivers) {
+                    receiver.playoutDelayHint = 0;
+                }
             })
             .catch((err) =>{
                 console.error(err);
@@ -249,9 +269,9 @@ AFRAME.registerComponent('render-client', {
         document.querySelector('a-scene').systems['compositor'].unbind();
 
         // this.dataChannel.close();
-        // this.peerConnection.close();
+        // this.pc.close();
         this.dataChannel = null;
-        this.peerConnection = null;
+        this.pc = null;
         this.connected = false;
         this.signaler.connectionId = null;
         this.healthCounter = 0;
