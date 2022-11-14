@@ -1,4 +1,4 @@
-import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer';
+import {EffectComposer} from './EffectComposterXR';
 import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass';
 import {CompositorPass} from './compositor-pass';
 
