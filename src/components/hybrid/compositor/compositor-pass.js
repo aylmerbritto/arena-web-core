@@ -30,10 +30,24 @@ export class CompositorPass extends Pass {
 		this.needsSwap = false;
 
         this.fsQuad = new FullScreenQuad(this.material);
+
+        window.addEventListener('enter-vr', this.onEnterVR.bind(this));
+        window.addEventListener('exit-vr', this.onExitVR.bind(this));
     }
 
     setSize(width, height) {
         this.material.uniforms.diffuseSize.value = [width, height];
+    }
+
+    onEnterVR() {
+        const sceneEl = document.querySelector('a-scene');
+        if (sceneEl.is('ar-mode')) {
+            this.material.uniforms.arMode.value = true;
+        }
+    }
+
+    onExitVR() {
+        this.material.uniforms.arMode.value = false;
     }
 
     render(renderer, writeBuffer, readBuffer
