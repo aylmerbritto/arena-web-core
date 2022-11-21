@@ -274,7 +274,7 @@ AFRAME.registerSystem('armarker', {
             }
         }
         if (ARENA.clientCoords === undefined) {
-            console.error('No device location! Cannot query ATLAS.');
+            console.warn('No device location! Cannot query ATLAS.');
             return false;
         }
         const position = ARENA.clientCoords;
