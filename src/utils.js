@@ -297,7 +297,7 @@ export class ARENAUtils {
     static detectARHeadset() {
         if (window.mlWorld) return 'ml';
         if (navigator.xr && navigator.userAgent.includes('Edg')) return 'hl';
-        return 'unknown';
+        return undefined;
     }
 
     /**
