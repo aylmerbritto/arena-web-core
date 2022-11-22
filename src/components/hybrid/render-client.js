@@ -132,7 +132,7 @@ AFRAME.registerComponent('render-client', {
         this.pc.ontrack = this.onRemoteTrack.bind(this);
         this.pc.oniceconnectionstatechange = () => {
             if (this.pc) {
-                console.log('[render-client] iceConnectionState changed:,', this.pc.iceConnectionState);
+                console.log('[render-client] iceConnectionState changed:', this.pc.iceConnectionState);
             }
         };
 
