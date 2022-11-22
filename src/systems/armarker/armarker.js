@@ -20,6 +20,7 @@ import {WebARViewerCameraCapture} from './camera-capture/ccwebarviewer.js';
 import {ARMarkerRelocalization} from './armarker-reloc.js';
 import {CVWorkerMsgs} from './worker-msgs.js';
 import {ARENAEventEmitter} from '../../event-emitter.js';
+import {ARENAUtils} from '../../utils.js';
 
 /**
   * ARMarker System. Supports ARMarkers in a scene.
@@ -154,7 +155,7 @@ AFRAME.registerSystem('armarker', {
         }
 
         // if we are on an AR headset, use camera facing forward
-        const arHeadset = this.detectARHeadset();
+        const arHeadset = ARENAUtils.detectARHeadset();
         if (arHeadset !== 'unknown') {
             // try to set up a camera facing forward capture (using getUserMedia)
             console.info('Setting up AR Headset camera capture.');
@@ -319,20 +320,6 @@ AFRAME.registerSystem('armarker', {
                 });
             });
         return true;
-    },
-    /**
-    * Try to detect AR headset (currently: magic leap and hololens only;  other devices to be added later)
-    * Hololens reliable detection is tbd
-    *
-    * ARHeadeset camera capture uses returned value as a key to projection matrix array
-    *
-    * @return {string} "ml", "hl", "unknown".
-    * @alias module:armarker-system
-    */
-    detectARHeadset() {
-        if (window.mlWorld) return 'ml';
-        if (navigator.xr && navigator.userAgent.includes('Edg')) return 'hl';
-        return 'unknown';
     },
     /**
     * Register an ARMarker component with the system
