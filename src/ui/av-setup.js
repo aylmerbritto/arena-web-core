@@ -1,6 +1,7 @@
-import Swal from 'sweetalert2';
-import {SideMenu} from '../icons/index.js';
 /* global ARENA */
+
+import Swal from 'sweetalert2';
+import {SideMenu} from '../icons/';
 
 // Ref : https://github.com/samdutton/simpl/blob/gh-pages/getusermedia/sources/js/main.js
 window.setupAV = (callback) => {
@@ -24,6 +25,10 @@ window.setupAV = (callback) => {
     let meterProcess = null;
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     const audioContext = new AudioContext();
+
+    // style video element
+    videoElement.classList.add('flipVideo');
+    videoElement.style.borderRadius = '10px';
 
     /**
      * Initialize listeners

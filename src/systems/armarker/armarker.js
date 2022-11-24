@@ -13,14 +13,14 @@
  * @date 2020
  */
 
-import {WebXRCameraCapture} from './camera-capture/ccwebxr.js';
-import {WebARCameraCapture} from './camera-capture/ccwebar.js';
-import {ARHeadsetCameraCapture} from './camera-capture/ccarheadset.js';
-import {WebARViewerCameraCapture} from './camera-capture/ccwebarviewer.js';
-import {ARMarkerRelocalization} from './armarker-reloc.js';
-import {CVWorkerMsgs} from './worker-msgs.js';
-import {ARENAEventEmitter} from '../../event-emitter.js';
-import {ARENAUtils} from '../../utils.js';
+import {WebXRCameraCapture} from './camera-capture/ccwebxr';
+import {WebARCameraCapture} from './camera-capture/ccwebar';
+import {ARHeadsetCameraCapture} from './camera-capture/ccarheadset';
+import {WebARViewerCameraCapture} from './camera-capture/ccwebarviewer';
+import {ARMarkerRelocalization} from './armarker-reloc';
+import {CVWorkerMsgs} from './worker-msgs';
+import {ARENAEventEmitter} from '../../event-emitter';
+import {ARENAUtils} from '../../utils';
 
 /**
   * ARMarker System. Supports ARMarkers in a scene.
@@ -266,7 +266,7 @@ AFRAME.registerSystem('armarker', {
         }
 
         // check if we should trigger a device location update
-        if (this.data.devLocUpdateIntervalSecs > 0 && ARENAUtils) {
+        if (this.data.devLocUpdateIntervalSecs > 0) {
             if (new Date() - this.lastdevLocUpdate < this.data.devLocUpdateIntervalSecs * 1000) {
                 ARENAUtils.getLocation((coords, err) => {
                     if (!err) ARENA.clientCoords = coords;
@@ -420,6 +420,11 @@ AFRAME.registerSystem('armarker', {
             };
         }
         if (!this.ATLASMarkers[markerid]) {
+            if (ARENA.clientCoords === undefined) {
+                ARENAUtils.getLocation((coords, err) => {
+                    if (!err) ARENA.clientCoords = coords;
+                });
+            }
             // force update from ATLAS if not found
             this.getARMArkersFromATLAS();
         }

@@ -9,7 +9,7 @@
 /* global AFRAME, ARENA, JitsiMeetJS */
 import $ from 'jquery';
 import {ARENAEventEmitter} from './event-emitter.js';
-import {SideMenu} from './icons/index.js';
+import {SideMenu} from './icons/';
 
 // log lib-jitsi-meet.js version
 if (JitsiMeetJS) {
@@ -718,14 +718,15 @@ export class ARENAJitsi {
         /**
          * show user video in the corner
          */
+        const _this = this;
         function setupCornerVideo() {
             // video window for jitsi
-            this.jitsiVideoElem = document.getElementById('cornerVideo');
-            this.jitsiVideoElem.className = 'flipVideo';
-            this.jitsiVideoElem.style.opacity = '0.9'; // slightly see through
-            this.jitsiVideoElem.style.display = 'none';
+            _this.jitsiVideoElem = document.getElementById('cornerVideo');
+            _this.jitsiVideoElem.classList.add('flipVideo');
+            _this.jitsiVideoElem.classList.add('cornerVideoStyle');
+            _this.jitsiVideoElem.style.opacity = '0.9'; // slightly see through
+            _this.jitsiVideoElem.style.display = 'none';
 
-            const _this = this;
             /**
              * set video element size
              */
@@ -737,7 +738,7 @@ export class ARENAJitsi {
                 _this.jitsiVideoElem.style.height = videoHeight + 'px';
             }
 
-            this.jitsiVideoElem.onloadedmetadata = () => {
+            _this.jitsiVideoElem.onloadedmetadata = () => {
                 setCornerVideoHeight();
             };
 

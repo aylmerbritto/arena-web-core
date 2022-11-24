@@ -6,18 +6,14 @@
  * @date 2020
  */
 
-/* global ARENA, Paho */
+/* global ARENA */
 
 import * as Paho from 'paho-mqtt'; // https://www.npmjs.com/package/paho-mqtt
 import {ARENAEventEmitter} from '../event-emitter.js';
-import {ARENAUtils} from '../utils.js';
-import linkify from 'linkifyjs';
-import linkifyStr from 'linkifyjs/string';
 import Swal from 'sweetalert2';
+import {SideMenu} from '../icons';
+import {ARENAUtils} from '../utils';
 import './style.css';
-import {SideMenu} from '../icons/index.js';
-
-let mqttc;
 
 /**
  * A class to manage an instance of the ARENA chat MQTT and GUI message system.
