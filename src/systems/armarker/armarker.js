@@ -168,6 +168,13 @@ AFRAME.registerSystem('armarker', {
 
 
         if (!this.cameraCapture) { // Not WebXRViewer/WebARViewer, not AR headset
+            // ignore camera capture when in VR Mode
+            const sceneEl = document.querySelector('a-scene');
+            if (!sceneEl.is('ar-mode')) {
+                console.info('Attempted to initialize camera capture, but found VR Mode.');
+                return;
+            }
+
             if (window.XRWebGLBinding) { // Set up a webxr camera capture (e.g. passthrough AR on a phone)
                 console.info('Setting up WebXR-based passthrough AR camera capture.');
                 try {

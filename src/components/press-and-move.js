@@ -44,13 +44,13 @@ AFRAME.registerComponent('press-and-move', {
 
         const self = this;
         window.addEventListener('touchstart', function(evt) {
-            evt.preventDefault();
+            // evt.preventDefault();
             if (!self.timer && evt.touches.length === 1) { // let gesture-detector handle 2+ touches
                 self.timer = window.setTimeout(() => {
                     self.longTouch = true;
                 }, LONG_PRESS_DURATION_THRESHOLD);
             }
-        });
+        }, {passive: false});
 
         window.addEventListener('touchend', function(evt) {
             if (self.timer) {
