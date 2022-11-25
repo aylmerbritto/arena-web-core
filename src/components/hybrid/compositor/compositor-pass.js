@@ -37,7 +37,7 @@ export class CompositorPass extends Pass {
     }
 
     setSize(width, height) {
-        this.material.uniforms.diffuseSize.value = [width, height];
+        this.material.uniforms.windowSize.value = [width, height];
     }
 
     onEnterVR() {
