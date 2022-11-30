@@ -1,1 +1,1 @@
-import './compositor'
+import './compositor';

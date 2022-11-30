@@ -112,8 +112,7 @@ export class MQTTSignaling {
         const connectData = {
             'id': this.id,
             'deviceType': ARENAUtils.getDeviceType(),
-            'sceneNamespace': ARENA.namespace,
-            'sceneName': ARENA.scene,
+            'namespacedScene': ARENA.namespacedScene,
             'screenWidth': 1.25*width,
             'screenHeight': height,
         };
