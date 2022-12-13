@@ -51,8 +51,8 @@ float readDepth(sampler2D depthSampler, vec2 coord) {
     return depth;
 }
 
-float customDepth(sampler2D depthSampler, vec2 coord) {
-    float depth = texture2D( depthSampler, vUv ).x;
+float readDepthDiffuse(sampler2D depthSampler, vec2 coord) {
+    float depth = texture2D( depthSampler, coord ).x;
     float viewZ = perspectiveDepthToViewZ( depth, cameraNear, cameraFar );
     viewZ = viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
     viewZ = viewZ*50.0;
@@ -101,7 +101,7 @@ void main() {
     vec4 diffuseColor = texture2D( tDiffuse, coordDiffuseColor );
     vec4 streamColor = texture2D( tStream, coordStreamColor );
 
-    float diffuseDepth = customDepth( tDepth, coordDestNormalized );
+    float diffuseDepth = readDepthDiffuse( tDepth, coordDiffuseDepth );
     float streamDepth = readDepth( tStream, coordStreamDepth );
     bool ignore = false; // readMask( tStream, coordStreamDepth );
 
