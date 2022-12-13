@@ -30,7 +30,7 @@ uniform ivec2 streamSize;
 //     return mask;
 // }
 
-float readDepthDiffuse( sampler2D depthSampler, vec2 coord ) {
+float readDepthDiffuseBkp( sampler2D depthSampler, vec2 coord ) {
     float fragCoordZ = texture2D( depthSampler, coord ).x;
 
     // float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
