@@ -16,8 +16,8 @@ AFRAME.registerSystem('compositor', {
 
         this.target = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
         this.target.texture.name = 'EffectComposer.rt1';
-        this.target.texture.minFilter = THREE.LinearFilter;
-        this.target.texture.magFilter = THREE.LinearFilter;
+        this.target.texture.minFilter = THREE.NearestFilter;
+        this.target.texture.magFilter = THREE.NearestFilter;
         this.target.stencilBuffer = false;
         this.target.format = THREE.RGBAFormat;
         this.target.depthTexture = new THREE.DepthTexture();
