@@ -33,8 +33,8 @@ uniform ivec2 streamSize;
 float readDepthDiffuse( sampler2D depthSampler, vec2 coord ) {
     float fragCoordZ = texture2D( depthSampler, coord ).x;
     
-    // float viewZ = perspectiveDepthToViewZ( fragCoordZ, near, far );
-    // return viewZToOrthographicDepth( fragCoordZ, near, far );
+    // float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
+    // return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
  
 
     // https://sites.google.com/site/cgwith3js/home/depth-buffer-visualization
