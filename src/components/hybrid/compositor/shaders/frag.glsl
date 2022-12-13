@@ -32,6 +32,7 @@ uniform ivec2 streamSize;
 
 float readDepthDiffuse( sampler2D depthSampler, vec2 coord ) {
     float fragCoordZ = texture2D( depthSampler, coord ).z;
+    
     // float viewZ = perspectiveDepthToViewZ( fragCoordZ, near, far );
     // return viewZToOrthographicDepth( fragCoordZ, near, far );
  
@@ -132,6 +133,7 @@ void main() {
     else {
         color = diffuseColor;
     }
+    
     // color = vec4(streamColor.rgb, 1.0);
     // color = vec4(diffuseColor.rgb, 1.0);
     gl_FragColor = color;
