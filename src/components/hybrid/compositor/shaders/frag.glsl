@@ -34,7 +34,7 @@ float readDepthDiffuse( sampler2D depthSampler, vec2 coord ) {
     float fragCoordZ = texture2D( depthSampler, coord ).x;
 
     // float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
-    // return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar ); 
+    // return viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
 
     // https://sites.google.com/site/cgwith3js/home/depth-buffer-visualization
     float ndcZ = 2.0 * fragCoordZ - 1.0;
