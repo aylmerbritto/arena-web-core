@@ -34,11 +34,12 @@ float readDepthDiffuse( sampler2D depthSampler, vec2 coord ) {
     float fragCoordZ = texture2D( depthSampler, coord ).z;
     // float viewZ = perspectiveDepthToViewZ( fragCoordZ, near, far );
     // return viewZToOrthographicDepth( fragCoordZ, near, far );
-     
+ 
+
     // https://sites.google.com/site/cgwith3js/home/depth-buffer-visualization
     float ndcZ = 2.0 * fragCoordZ - 1.0;
     float linearDepth = (2.0 * cameraNear * cameraFar) / (cameraFar + cameraNear - ndcZ * (cameraFar - cameraNear));
-    return ((linearDepth - cameraNear) / (cameraFar - cameraNear));
+    return (linearDepth - cameraNear) / (cameraFar - cameraNear);
 
     // float _ZBufferParamsX = 1.0 - cameraFar / cameraNear;
     // float _ZBufferParamsY = cameraFar / cameraNear;
@@ -134,7 +135,7 @@ void main() {
     // color = vec4(streamColor.rgb, 1.0);
     // color = vec4(diffuseColor.rgb, 1.0);
     gl_FragColor = color;
-    
+
     // gl_FragColor.rgb = vec3(readDepthDiffuse( tDepth, coordDiffuseDepth ));
     // gl_FragColor.a = 1.0;
 }
