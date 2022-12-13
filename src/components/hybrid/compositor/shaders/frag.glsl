@@ -31,7 +31,7 @@ uniform ivec2 streamSize;
 // }
 
 float readDepthDiffuse( sampler2D depthSampler, vec2 coord ) {
-    float fragCoordZ = texture2D( depthSampler, coord ).z;
+    float fragCoordZ = texture2D( depthSampler, coord ).x;
     
     // float viewZ = perspectiveDepthToViewZ( fragCoordZ, near, far );
     // return viewZToOrthographicDepth( fragCoordZ, near, far );
