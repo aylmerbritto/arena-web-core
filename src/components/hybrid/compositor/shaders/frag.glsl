@@ -103,7 +103,6 @@ void main() {
 
     float diffuseDepth = customDepth( tDepth, coordDestNormalized );
     float streamDepth = readDepth( tStream, coordStreamDepth );
-    // float streamDepth = readDepthDiffuse( tStream, coordDestNormalized );
     bool ignore = false; // readMask( tStream, coordStreamDepth );
 
     vec4 color;
