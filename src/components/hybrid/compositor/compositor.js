@@ -23,7 +23,6 @@ AFRAME.registerSystem('compositor', {
         this.target.depthTexture = new THREE.DepthTexture();
         // this.target.depthTexture.format = THREE.RGBAFormat;
         this.target.depthTexture.type = THREE.FloatType;
-        // this.target.depthTexture.type = THREE.UnsignedByteType;
 
         window.addEventListener('hybrid-onremotetrack', this.onRemoteTrack.bind(this));
     },
